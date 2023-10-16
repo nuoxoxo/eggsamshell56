@@ -15,17 +15,21 @@ SB & operator = (const SB & s) {
 map<string, ASpell *> spells;
 
 public:
+
   SB () {}
   ~ SB () {}
+
   void learnSpell(ASpell * spell) {
     if (spell)
       spells[spell->getName()] = spell->clone();
   }
+
   void forgetSpell(const string & spellname) {
     if (spells[spellname])
       delete spells[spellname];
     spells.erase( spellname );
   }
+
   ASpell* createSpell(const string & spellname) {
     if (spells[spellname])
       return spells[spellname];

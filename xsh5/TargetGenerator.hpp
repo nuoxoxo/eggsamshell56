@@ -15,17 +15,21 @@ TG & operator = (const TG & s) {
 map<string, ATarget *> tars;
 
 public:
+
   TG () {}
   ~ TG () {}
+
   void learnTargetType(ATarget* tar) {
     if (tar)
       tars[tar->getType()] = tar->clone();
   }
+
   void forgetTargetType(const string & tp) {
     if (tars[tp])
       delete tars[tp];
     tars.erase(tp);
   }
+
   ATarget* createTarget(const string & tp) {
     if (tars[tp])
       return tars[tp];
