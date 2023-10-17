@@ -107,7 +107,7 @@ int unzip_msg(char **buff, char **msg)
     int i;
 
     *msg = nullptr;
-    if (*buff == nullptr)
+    if ( * buff == nullptr)
         return 0;
     i = 0;
     while ((*buff)[i])
@@ -131,13 +131,8 @@ int unzip_msg(char **buff, char **msg)
 
 char *strjoin(char *buff, char *add)
 {
-    char *buff_in;
-    int len;
-
-    if (buff == nullptr)
-        len = 0;
-    else
-        len = strlen(buff);
+    char * buff_in;
+    int    len = (buff == nullptr) ? 0 : strlen(buff);
 
     buff_in = new char[len + strlen(add) + 1];
     if (buff_in == nullptr)
@@ -170,7 +165,7 @@ void reg_client(int fd)
 {
     MaxFD = fd > MaxFD ? fd : MaxFD; // update the MaxFD which is a global
 
-    IDs[fd] = UniqFD++; // CountFD++;
+    IDs[fd] = UniqFD++;
     // this client is identified by IDs[fd]
     // the client is also assigned a unique client id: UniqFD | CountFD
 
@@ -193,14 +188,14 @@ void rmv_client(int fd)
     Send_everyone_except_sender(fd, Newsline);
 
     // free the memory: free Inbox, clear fd, close fd
-    delete[] Inbox[fd];
+    delete [] Inbox[fd];
     FD_CLR(fd, & allfds);
     close(fd);
 }
 
 void send_msg(int fd)
 {
-    char *msg;
+    char * msg;
 
     while (unzip_msg( & Inbox[fd], &msg))
     {
