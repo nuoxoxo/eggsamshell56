@@ -6,7 +6,9 @@
 #include <sys/select.h>
 #include <unistd.h>
 
-#define TwoPow32 4294967296
+using namespace std;
+
+#define TwoPow16 65536 //4294967296
 #define LEN 1024
 
 fd_set rfds;
@@ -16,8 +18,8 @@ fd_set allfds;
 int UniqFD = 0;
 int MaxFD = 0;
 
-int IDs[ TwoPow32 ];
-char *Inbox[ TwoPow32 ];
+int IDs[ TwoPow16 ];
+char *Inbox[ TwoPow16 ];
 
 char buff_read[LEN + 1];
 char Newsline[42];
@@ -31,25 +33,25 @@ int make_sock();
 int unzip_msg(char **, char **);
 char *strjoin(char *, char *);
 
-int main(int argc, char **argv)
+int main(int argc, char ** argv)
 {
-    if (argc != 2)
+    if (argc ^ 2)
     {
-        std::cerr << "Wrong number of arguments" << std::endl;
+        cerr << "Wrong number of arguments\n";
         exit(1);
     }
 
-    FD_ZERO(&allfds);
+    FD_ZERO( & allfds);
     int sockfd = make_sock();
 
     struct sockaddr_in servaddr;
-    memset(&servaddr, 0, sizeof(servaddr));
+    memset(& servaddr, 0, sizeof(servaddr));
 
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(2130706433); // localhost
     servaddr.sin_port = htons( atoi(argv[1]) );  // use : nc lc 8080
 
-    if (bind(sockfd, reinterpret_cast<const sockaddr *>(&servaddr), sizeof(servaddr)))
+    if (bind(sockfd, reinterpret_cast<const sockaddr *>(& servaddr), sizeof(servaddr)))
         fatal();
     else if (listen(sockfd, SOMAXCONN))
         fatal();
@@ -57,20 +59,21 @@ int main(int argc, char **argv)
     while (730)
     {
         rfds = wfds = allfds;
-        if (select(MaxFD + 1, &rfds, &wfds, nullptr, nullptr) < 0)
+        if (select(MaxFD + 1, & rfds, & wfds, nullptr, nullptr) < 0)
             fatal();
         int i = -1;
         while (++i < MaxFD + 1)
         {
-            if (!FD_ISSET(i, &rfds))
+            if (!FD_ISSET(i, & rfds))
                 continue;
             if (i == sockfd)
             {
                 socklen_t addr_len = sizeof(servaddr);
                 int client_fd = accept(
                     sockfd,
-                    reinterpret_cast<struct sockaddr *>(&servaddr),
-                    &addr_len);
+                    reinterpret_cast<struct sockaddr *>(& servaddr),
+                    & addr_len
+                );
                 if (client_fd > -1)
                 {
                     reg_client(client_fd);
@@ -80,7 +83,11 @@ int main(int argc, char **argv)
             else
             {
                 int bytesread = recv(
-                    i, buff_read, LEN, 0);
+                    i,
+                    buff_read,
+                    LEN,
+                    0
+                );
                 if (bytesread < 1)
                 {
                     rmv_client(i);
@@ -111,8 +118,8 @@ int unzip_msg(char **buff, char **msg)
 
             if (buff_in == nullptr)
                 return -1;
-            strcpy(buff_in, *buff + i + 1);
-            * msg = *buff;
+            strcpy(buff_in, * buff + i + 1);
+            * msg = * buff;
             (* msg)[i + 1] = 0;
             *buff = buff_in;
             return 1;
@@ -145,7 +152,7 @@ char *strjoin(char *buff, char *add)
 
 void fatal()
 {
-    std::cerr << "Fatal error" << std::endl;
+    cerr << "Fatal error\n";
     exit(1);
 }
 
@@ -154,7 +161,7 @@ void Send_everyone_except_sender(int senderfd, const char *str)
     int i = -1;
     while (++i < MaxFD + 1)
     {
-        if (FD_ISSET(i, &wfds) && i != senderfd)
+        if (FD_ISSET(i, & wfds) && i ^ senderfd)
             send(i, str, strlen(str), 0);
     }
 }
@@ -170,7 +177,7 @@ void reg_client(int fd)
     Inbox[fd] = nullptr;
     // init Inbox as null
 
-    FD_SET(fd, &allfds);
+    FD_SET(fd, & allfds);
     // + fd to allfds set
 
     // prepare a buffer to write w/ sprintf
@@ -187,7 +194,7 @@ void rmv_client(int fd)
 
     // free the memory: free Inbox, clear fd, close fd
     delete[] Inbox[fd];
-    FD_CLR(fd, &allfds);
+    FD_CLR(fd, & allfds);
     close(fd);
 }
 
@@ -195,7 +202,7 @@ void send_msg(int fd)
 {
     char *msg;
 
-    while (unzip_msg(&Inbox[fd], &msg))
+    while (unzip_msg( & Inbox[fd], &msg))
     {
         sprintf(Newsline, "client %d: ", IDs[fd]);
         Send_everyone_except_sender(fd, Newsline);
@@ -209,10 +216,11 @@ int make_sock()
     MaxFD = socket(
         AF_INET,
         SOCK_STREAM,
-        0);
+        0
+    );
     if (MaxFD < 0)
         fatal();
-    FD_SET(MaxFD, &allfds);
+    FD_SET(MaxFD, & allfds);
     return MaxFD;
 }
 
