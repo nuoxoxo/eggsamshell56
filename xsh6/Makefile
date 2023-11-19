@@ -1,22 +1,23 @@
-CC = clang
-CFLAGS = -Wall -Wextra -Werror
-SRC = mini_serv.cc
-OUT = a.out
+CXX			= c++
+CXXFLAGS	= -Werror -Wextra -Wall
+SRC			= mini_serv.cc
+OUT			= a.out
+PORT		= 8080
 
-all: $(OUT)
+all		: $(OUT)
 
-$(OUT): $(SRC)
-	$(CC) $(CFLAGS) $^ -o $@
+$(OUT)	: $(SRC)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+	./$(OUT) $(PORT)
 
-clean:
+clean	:
 	@rm -f $(OUT)
 
-fclean: clean
+fclean	: clean
 	@rm -f out *.out
 
-f: fclean
+f		: fclean
 
-re: f all
+re		: f all
 
-.PHONY: fclean clean all re f
-
+.PHONY	: fclean clean all re f
