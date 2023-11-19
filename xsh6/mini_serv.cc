@@ -1,5 +1,7 @@
 #include "iostream"
-#include "sys/socket.h" // close . select
+#include "cstring"
+#include "unistd.h"
+//#include "sys/socket.h" // close . select
 #include "netinet/in.h"
 #include "vector"
 
