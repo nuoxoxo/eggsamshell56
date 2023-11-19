@@ -2,7 +2,7 @@ CXX			= c++
 CXXFLAGS	= -Werror -Wextra -Wall
 SRC			= mini_serv.cc
 OUT			= a.out
-PORT		= 8080
+PORT		= 7777
 
 all		: $(OUT)
 
